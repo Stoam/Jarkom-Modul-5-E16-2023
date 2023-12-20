@@ -542,14 +542,127 @@ apt-get install netcat -y
 ## Penyelesaian Soal
 
 ### Soal 1
+##### Penyelesaian Soal
+- Topologi yang dibuat harus dapat mengakses internet keluar.
+- Konfigurasi NAT dilakukan dengan menggunakan iptables, tetapi tidak menggunakan MASQUERADE.
+- Untuk melakukan NAT tanpa MASQUERADE, digunakan perintah SNAT --to-source.
+- IP yang digunakan untuk SNAT adalah NID dari router yang berhubungan dengan NAT.
+
+##### Konfigurasi
+Pada node Aura, tambahkan konfigurasi sebagai berikut
+```
+ETH0_IP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source $ETH0_IP -s 192.214.0.0/20
+```
+
+#### Screenshoot Hasil
+- Router
+
+
+- Server
+
+
+- Client
+
+
 
 ### Soal 2
+##### Penyelesaian Soal
+- Dilakukan konfigurasi firewall untuk drop semua TCP dan UDP kecuali port 8080 pada TCP.
+- Konfigurasi dilakukan pada node Revolte.
+
+##### Konfigurasi
+Pada node Revolte, tambahkan konfigurasi sebagai berikut
+```
+ iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+ iptables -A INPUT -p tcp -j DROP
+ iptables -A INPUT -p udp -j DROP
+
+```
+##### Penjelasan Konfigurasi
+- Aturan pertama, ```iptables -A INPUT -p tcp --dport 8080 -j ACCEPT```, mengizinkan lalu lintas TCP yang menuju ke port 8080.
+Aturan kedua, ```iptables -A INPUT -p tcp -j DROP```, menolak semua lalu lintas TCP kecuali yang menuju ke port 8080.
+Aturan ketiga, ```iptables -A INPUT -p udp -j DROP```, menolak semua lalu lintas UDP.
+
+#### Screenshoot Hasil
+- [SUCCES] TurkRegion (Sender) > Revolte (Receiver) port 8080
+
+
+
+- [GAGAL] TurkRegion (Sender) > Revolte (Receiver) port 8000
 
 ### Soal 3
+##### Penyelesaian Soal
+- Dilakukan konfigurasi firewall untuk membatasi jumlah koneksi ICMP ke DHCP dan DNS Server.
+- Konfigurasi dilakukan pada chain INPUT.
+- Jumlah koneksi ICMP yang diizinkan adalah maksimal 3.
+- Koneksi yang melebihi batas akan ditolak.
+
+##### Konfigurasi
+Pada node Revolte, tambahkan konfigurasi sebagai berikut
+```
+iptables -I INPUT -p icmp -m connlimit --connlimit-above 3 --connlimit-mask 0 -j DROP
+iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+```
+##### Penjelasan Konfigurasi
+- Aturan pertama, ```iptables -I INPUT -p icmp -m connlimit --connlimit-above 3 --connlimit-mask 0 -j DROP```, membatasi jumlah koneksi ICMP dari satu alamat IP.
+- Aturan kedua, ```iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT```, mengizinkan paket yang terkait dengan koneksi yang sudah didirikan atau terkait dengan koneksi yang ada untuk masuk ke sistem.
+
+#### Screenshoot Hasil
+- Ping ke 4 Client (TurkRegion, LaubHills, GrobeForest, dan SchwerMountain)
+
+
 
 ### Soal 4
+##### Penyelesaian Soal
+- Dilakukan konfigurasi firewall untuk membatasi koneksi SSH pada Web Server.
+- Konfigurasi dilakukan pada chain INPUT.
+- Hanya lalu lintas SSH yang berasal dari alamat IP yang dimulai dengan 192.214.4.3 (IP GrobeForest) yang diizinkan.
+
+##### Konfigurasi
+Pada node Stark dan Sein, tambahkan konfigurasi sebagai berikut
+```
+iptables -A INPUT -p tcp --dport 22 -s 192.214.4.3/22 -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -j DROP
+```
+
+##### Penjelasan Konfigurasi
+- Aturan pertama, ```iptables -A INPUT -p tcp --dport 22 -s 192.214.4.3/22 -j ACCEPT```, mengizinkan lalu lintas SSH yang berasal dari alamat IP yang dimulai dengan 192.214.4.3
+- Aturan kedua, ```iptables -A INPUT -p tcp --dport 22 -j DROP```, menolak semua lalu lintas SSH yang tidak berasal dari alamat IP yang dimulai dengan 192.214.4.3
+
+#### Screenshoot Hasil
+- [SUCCES] GrobeForest (Sender) > Stark (Receiver)
+
+
+
+- [GAGAL] TurkRegion (Sender) > Stark (Receiver)
 
 ### Soal 5
+##### Penyelesaian Soal
+- Dilakukan konfigurasi firewall untuk membatasi akses ke Web Server.
+- Konfigurasi dilakukan pada chain INPUT.
+- Akses ke Web Server hanya diperbolehkan pada hari Senin sampai Jumat, pukul 08:00-16:00.
+
+
+##### Konfigurasi
+Pada node Stark dan Sein, tambahkan konfigurasi sebagai berikut
+```
+iptables -A INPUT -m time --timestart 08:00 --timestop 16:00 --weekdays Mon,Tue,Wed,Thu,Fri -j ACCEPT
+iptables -A INPUT -j REJECT
+```
+
+##### Penjelasan Konfigurasi
+- Aturan pertama, ```iptables -A INPUT -m time --timestart 08:00 --timestop 16:00 --weekdays Mon,Tue,Wed,Thu,Fri -j ACCEPT```, mengizinkan lalu lintas yang masuk (INPUT) hanya pada rentang waktu antara pukul 08:00 hingga 16:00 pada hari Senin sampai Jumat.
+- Aturan kedua, ```iptables -A INPUT -j REJECT```, menolak semua lalu lintas yang tidak sesuai dengan aturan pertama. Ini termasuk lalu lintas di luar rentang waktu atau pada hari yang tidak termasuk dalam Senin sampai Jumat.
+
+#### Screenshoot Hasil
+Stark (Sender) > GrobeForest (Receiver)
+- [SUCCES] ```date --set="2023-12-19 14:00:00"```
+
+
+
+- [GAGAL] ```date --set="2023-12-19 17:00:00" ```
+
 
 ### Soal 6
 
