@@ -309,13 +309,235 @@ route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.214.0.21
 
 ### DNS Server
 
+**init.sh**
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install bind9 -y
+
+cp /root/named.conf.options /etc/bind/named.conf.options
+
+service bind9 start
+service bind9 restart
+```
+
+**named.conf.options**
+
+```
+options {
+    directory "/var/cache/bind";
+
+    forwarders {
+        192.168.122.1;
+    };
+
+    allow-query{any;};
+    listen-on-v6 { any; };
+};
+```
+
 ### DHCP Server
+
+**init.sh**
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install isc-dhcp-server -y
+apt-get install netcat -y
+
+cp /root/isc-dhcp-server /etc/default/isc-dhcp-server
+cp /root/dhcpd.conf /etc/dhcp/dhcpd.conf
+rm /var/run/dhcpd.pid
+
+service isc-dhcp-server start
+service isc-dhcp-server restart
+```
+
+**isc-dhcp-server**
+
+```
+INTERFACESv4="eth0"
+INTERFACESv6=""
+```
+
+**dhcpd.conf**
+
+```
+option domain-name "example.org";
+option domain-name-servers ns1.example.org, ns2.example.org;
+
+default-lease-time 600;
+max-lease-time 7200;
+
+ddns-update-style none;
+authoritative;
+
+subnet 192.214.0.8 netmask 255.255.255.252 {
+
+}
+
+subnet 192.214.0.12 netmask 255.255.255.252 {
+
+}
+
+#LaubHills
+subnet 192.214.2.0 netmask 255.255.254.0 {
+    range 192.214.2.2 192.214.3.254;
+    option routers 192.214.2.1;
+    option broadcast-address 192.214.3.255;
+    option domain-name-servers 192.214.0.10;
+    default-lease-time 600;
+    max-lease-time 7200;
+}
+
+#SchwerMountain
+subnet 192.214.0.128 netmask 255.255.255.128 {
+    range 192.214.0.131 192.214.0.254;
+    option routers 192.214.0.129;
+    option broadcast-address 192.214.0.255;
+    option domain-name-servers 192.214.0.10;
+    default-lease-time 600;
+    max-lease-time 7200;
+}
+
+#TurkRegion
+subnet 192.214.8.0 netmask 255.255.248.0 {
+    range 192.214.8.2 192.214.15.254;
+    option routers 192.214.8.1;
+    option broadcast-address 192.214.15.255;
+    option domain-name-servers 192.214.0.10;
+    default-lease-time 600;
+    max-lease-time 7200;
+}
+
+#GrobeForest
+subnet 192.214.4.0 netmask 255.255.252.0 {
+    range 192.214.4.3 192.214.7.254;
+    option routers 192.214.4.1;
+    option broadcast-address 192.214.7.255;
+    option domain-name-servers 192.214.0.10;
+    default-lease-time 600;
+    max-lease-time 7200;
+}
+```
 
 ### DHCP Relay
 
+**init.sh**
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install isc-dhcp-relay -y
+apt-get install netcat -y
+
+cp /root/isc-dhcp-relay /etc/default/isc-dhcp-relay
+cp /root/sysctl.conf /etc/sysctl.conf
+
+service isc-dhcp-relay start
+service isc-dhcp-relay restart
+```
+
+**isc-dhcp-relay**
+
+```
+SERVERS="192.214.0.14"
+INTERFACES="eth0 eth1 eth2"
+OPTIONS=""
+```
+
+**sysctl.conf**
+
+```
+net.ipv4.ip_forward=1
+```
+
 ### Web Server
 
+Contoh di bawah ini adalah untuk node `Stark`. Lakukan hal yang sama pada `Sein`, tetapi dengan mengganti setiap kata `Stark` menjadi `Sein`.
+
+**init.sh**
+
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install apache2 -y
+apt-get install netcat -y
+
+cp /root/ports.conf /etc/apache2/ports.conf
+cp /root/index.html /var/www/html/index.html
+
+cp /root/stark.conf /etc/apache2/sites-available/stark.conf
+a2ensite stark.conf
+service apache2 restart
+```
+
+**ports.conf**
+
+```
+Listen 80
+Listen 443
+
+<IfModule ssl_module>
+    Listen 443
+</IfModule>
+
+<IfModule mod_gnutls.c>
+    Listen 443
+</IfModule>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+```
+
+**000-default.conf**
+
+```
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+```
+
+**stark.conf**
+
+```
+<VirtualHost *:80>
+    ServerName 192.214.0.18
+    DocumentRoot /var/www/html
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName 192.214.0.18
+    DocumentRoot /var/www/html
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+**index.html**
+
+```
+Stark
+```
+
 ### Client
+
+**init.sh**
+
+```
+apt-get update
+apt-get install lynx -y
+apt-get install netcat -y
+```
 
 ## Penyelesaian Soal
 
