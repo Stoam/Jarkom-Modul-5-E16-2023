@@ -561,6 +561,8 @@ apt-get install netcat -y
 ## Penyelesaian Soal
 
 ### Soal 1
+> Agar topologi yang kalian buat dapat mengakses keluar, kalian diminta untuk mengkonfigurasi Aura menggunakan iptables, tetapi tidak ingin menggunakan MASQUERADE.
+
 ##### Penyelesaian Soal
 - Topologi yang dibuat harus dapat mengakses internet keluar.
 - Konfigurasi NAT dilakukan dengan menggunakan iptables, tetapi tidak menggunakan MASQUERADE.
@@ -576,16 +578,18 @@ iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source $ETH0_IP -s 192.214.0
 
 #### Screenshoot Hasil
 - Router
-
+![image](img/no1_a.png)
 
 - Server
-
+![image](img/no1_b.png)
 
 - Client
-
+![image](img/no1_c.png)
 
 
 ### Soal 2
+> Kalian diminta untuk melakukan drop semua TCP dan UDP kecuali port 8080 pada TCP.
+
 ##### Penyelesaian Soal
 - Dilakukan konfigurasi firewall untuk drop semua TCP dan UDP kecuali port 8080 pada TCP.
 - Konfigurasi dilakukan pada node Revolte.
@@ -605,12 +609,18 @@ Aturan ketiga, ```iptables -A INPUT -p udp -j DROP```, menolak semua lalu lintas
 
 #### Screenshoot Hasil
 - [SUCCES] TurkRegion (Sender) > Revolte (Receiver) port 8080
+![image](img/no2_a.png)
 
-
+![image](img/no2_b.png)
 
 - [GAGAL] TurkRegion (Sender) > Revolte (Receiver) port 8000
+![image](img/no2_c.png)
+
+![image](img/no2_d.png)
 
 ### Soal 3
+> Kepala Suku North Area meminta kalian untuk membatasi DHCP dan DNS Server hanya dapat dilakukan ping oleh maksimal 3 device secara bersamaan, selebihnya akan di drop.
+
 ##### Penyelesaian Soal
 - Dilakukan konfigurasi firewall untuk membatasi jumlah koneksi ICMP ke DHCP dan DNS Server.
 - Konfigurasi dilakukan pada chain INPUT.
@@ -629,10 +639,12 @@ iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 #### Screenshoot Hasil
 - Ping ke 4 Client (TurkRegion, LaubHills, GrobeForest, dan SchwerMountain)
-
+![image](img/no3.png)
 
 
 ### Soal 4
+> Lakukan pembatasan sehingga koneksi SSH pada Web Server hanya dapat dilakukan oleh masyarakat yang berada pada GrobeForest.
+
 ##### Penyelesaian Soal
 - Dilakukan konfigurasi firewall untuk membatasi koneksi SSH pada Web Server.
 - Konfigurasi dilakukan pada chain INPUT.
@@ -651,12 +663,19 @@ iptables -A INPUT -p tcp --dport 22 -j DROP
 
 #### Screenshoot Hasil
 - [SUCCES] GrobeForest (Sender) > Stark (Receiver)
+![image](img/no4_a.png)
 
-
+![image](img/no4_b.png)
 
 - [GAGAL] TurkRegion (Sender) > Stark (Receiver)
+![image](img/no4_c.png)
+
+![image](img/no4_d.png)
 
 ### Soal 5
+> Selain itu, akses menuju WebServer hanya diperbolehkan saat jam kerja yaitu Senin-Jumat pada pukul 08.00-16.00.
+
+
 ##### Penyelesaian Soal
 - Dilakukan konfigurasi firewall untuk membatasi akses ke Web Server.
 - Konfigurasi dilakukan pada chain INPUT.
@@ -677,11 +696,14 @@ iptables -A INPUT -j REJECT
 #### Screenshoot Hasil
 Stark (Sender) > GrobeForest (Receiver)
 - [SUCCES] ```date --set="2023-12-19 14:00:00"```
+![image](img/no5_a.png)
 
-
+![image](img/no5_b.png)
 
 - [GAGAL] ```date --set="2023-12-19 17:00:00" ```
+![image](img/no5_c.png)
 
+![image](img/no5_d.png)
 
 ### Soal 6
 
