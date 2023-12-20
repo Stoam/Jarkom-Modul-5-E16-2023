@@ -553,9 +553,45 @@ apt-get install netcat -y
 
 ### Soal 6
 
+> Lalu, karena ternyata terdapat beberapa waktu di mana network administrator dari WebServer tidak bisa stand by, sehingga perlu ditambahkan rule bahwa akses pada hari Senin - Kamis pada jam 12.00 - 13.00 dilarang (istirahat maksi cuy) dan akses di hari Jumat pada jam 11.00 - 13.00 juga dilarang (maklum, Jumatan rek).
+
+**Script**
+
+```
+iptables -A INPUT -m time --timestart 12:00 --timestop 13:00 --weekdays Mon,Tue,Wed,Thu -j REJECT
+iptables -A INPUT -m time --timestart 11:00 --timestop 13:00 --weekdays Fri -j REJECT
+```
+
+**Testing**
+
+- Berhasil
+  ![image](https://github.com/Stoam/Jarkom-Modul-5-E16-2023/assets/58579201/9aa6928f-4103-4b12-ab22-35f1c2a0a79b)
+
+- Gagal (Rabu)
+  ![image](https://github.com/Stoam/Jarkom-Modul-5-E16-2023/assets/58579201/cc8e81fd-c213-4943-959b-b536e39e929e)
+
+- Gagal (Jumat)
+  ![image](https://github.com/Stoam/Jarkom-Modul-5-E16-2023/assets/58579201/9e5aa13f-b700-44e4-a1ff-226a7a445661)
+
 ### Soal 7
 
 ### Soal 8
+
+> Karena berbeda koalisi politik, maka subnet dengan masyarakat yang berada pada Revolte dilarang keras mengakses WebServer hingga masa pencoblosan pemilu kepala suku 2024 berakhir. Masa pemilu (hingga pemungutan dan penghitungan suara selesai) kepala suku bersamaan dengan masa pemilu Presiden dan Wakil Presiden Indonesia 2024
+
+**Script**
+
+```
+iptables -A INPUT -p tcp --dport 80 -s 192.214.0.12/30 -m time --datestart 2023-12-10 --datestop 2024-02-15 -j DROP
+```
+
+**Testing**
+
+- Gagal
+  ![image](https://github.com/Stoam/Jarkom-Modul-5-E16-2023/assets/58579201/9f814cd0-296f-4976-a631-2c089f9dda86)
+
+- Berhasil
+  ![image](https://github.com/Stoam/Jarkom-Modul-5-E16-2023/assets/58579201/8260419a-b4c3-4aef-956f-854f2df80e06)
 
 ### Soal 9
 
