@@ -26,10 +26,29 @@
     - [Client](#client)
   - [Penyelesaian Soal](#penyelesaian-soal)
     - [Soal 1](#soal-1)
+        - [Penyelesaian Soal](#penyelesaian-soal-1)
+        - [Konfigurasi](#konfigurasi-1)
+      - [Screenshoot Hasil](#screenshoot-hasil)
     - [Soal 2](#soal-2)
+        - [Penyelesaian Soal](#penyelesaian-soal-2)
+        - [Konfigurasi](#konfigurasi-2)
+        - [Penjelasan Konfigurasi](#penjelasan-konfigurasi)
+      - [Screenshoot Hasil](#screenshoot-hasil-1)
     - [Soal 3](#soal-3)
+        - [Penyelesaian Soal](#penyelesaian-soal-3)
+        - [Konfigurasi](#konfigurasi-3)
+        - [Penjelasan Konfigurasi](#penjelasan-konfigurasi-1)
+      - [Screenshoot Hasil](#screenshoot-hasil-2)
     - [Soal 4](#soal-4)
+        - [Penyelesaian Soal](#penyelesaian-soal-4)
+        - [Konfigurasi](#konfigurasi-4)
+        - [Penjelasan Konfigurasi](#penjelasan-konfigurasi-2)
+      - [Screenshoot Hasil](#screenshoot-hasil-3)
     - [Soal 5](#soal-5)
+        - [Penyelesaian Soal](#penyelesaian-soal-5)
+        - [Konfigurasi](#konfigurasi-5)
+        - [Penjelasan Konfigurasi](#penjelasan-konfigurasi-3)
+      - [Screenshoot Hasil](#screenshoot-hasil-4)
     - [Soal 6](#soal-6)
     - [Soal 7](#soal-7)
     - [Soal 8](#soal-8)
@@ -688,6 +707,21 @@ iptables -A INPUT -m time --timestart 11:00 --timestop 13:00 --weekdays Fri -j R
 
 ### Soal 7
 
+> Karena terdapat 2 WebServer, kalian diminta agar setiap client yang mengakses Sein dengan Port 80 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan dan request dari client yang mengakses Stark dengan port 443 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan.
+
+**Script**
+
+```
+iptables -A PREROUTING -t nat -p tcp --dport 80 -d 192.214.4.2 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination 192.214.4.2:80
+iptables -A PREROUTING -t nat -p tcp --dport 80 -d 192.214.4.2 -j DNAT --to-destination 192.214.0.18:80
+iptables -A PREROUTING -t nat -p tcp --dport 443 -d 192.214.0.18 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination 192.214.0.18:443
+iptables -A PREROUTING -t nat -p tcp --dport 443 -d 192.214.0.18 -j DNAT --to-destination 192.214.4.2:443
+```
+
+**Testing**
+
+![image](https://github.com/Stoam/Jarkom-Modul-5-E16-2023/assets/58579201/af795ace-9139-4eab-8a30-1c234e445918)
+
 ### Soal 8
 
 > Karena berbeda koalisi politik, maka subnet dengan masyarakat yang berada pada Revolte dilarang keras mengakses WebServer hingga masa pencoblosan pemilu kepala suku 2024 berakhir. Masa pemilu (hingga pemungutan dan penghitungan suara selesai) kepala suku bersamaan dengan masa pemilu Presiden dan Wakil Presiden Indonesia 2024
@@ -728,3 +762,9 @@ iptables -A FORWARD -m recent --name portscan --set -j ACCEPT
 ![image](https://github.com/Stoam/Jarkom-Modul-5-E16-2023/assets/58579201/99d777f7-00de-4f51-b7b2-30b45348e4fa)
 
 ### Soal 10
+
+> Karena kepala suku ingin tau paket apa saja yang di-drop, maka di setiap node server dan router ditambahkan logging paket yang di-drop dengan standard syslog level.
+
+**Script**
+
+**Testing**
