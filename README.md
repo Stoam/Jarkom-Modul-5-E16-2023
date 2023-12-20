@@ -595,4 +595,23 @@ iptables -A INPUT -p tcp --dport 80 -s 192.214.0.12/30 -m time --datestart 2023-
 
 ### Soal 9
 
+> Sadar akan adanya potensial saling serang antar kubu politik, maka WebServer harus dapat secara otomatis memblokir alamat IP yang melakukan scanning port dalam jumlah banyak (maksimal 20 scan port) di dalam selang waktu 10 menit. (clue: test dengan nmap)
+
+
+**Script**
+
+```
+iptables -N portscan
+
+iptables -A INPUT -m recent --name portscan --update --seconds 600 --hitcount 20 -j DROP
+iptables -A FORWARD -m recent --name portscan --update --seconds 600 --hitcount 20 -j DROP
+
+iptables -A INPUT -m recent --name portscan --set -j ACCEPT
+iptables -A FORWARD -m recent --name portscan --set -j ACCEPT
+```
+
+**Testing**
+
+![image](https://github.com/Stoam/Jarkom-Modul-5-E16-2023/assets/58579201/99d777f7-00de-4f51-b7b2-30b45348e4fa)
+
 ### Soal 10
